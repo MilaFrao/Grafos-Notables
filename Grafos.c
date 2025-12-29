@@ -25,6 +25,7 @@ typedef struct Grafo {
     Nodo** listaAdyacencia;
 } Grafo;
 
+
 Grafo* crearGrafo(int vertices) {
     Grafo* grafo = (Grafo*)malloc(sizeof(Grafo));
     grafo->numVertices = vertices;
