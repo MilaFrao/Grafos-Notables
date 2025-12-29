@@ -188,13 +188,6 @@ void liberarGrafo(Grafo* grafo) {
 
 
 int main() {
-    FILE* f=NULL;
-    f = fopen("grafo.txt", "r");
-    if (f == NULL) {
-        printf("Error al abrir el archivo.\n");
-        return 1;
-    }
-
     
     /*
     Grafo* grafo = crearGrafo(4);
