@@ -189,7 +189,7 @@ void liberarGrafo(Grafo* grafo) {
 
 int main() {
     
-    /*
+    
     Grafo* grafo = crearGrafo(4);
 
         agregarArista(grafo, 0, 1);
@@ -204,7 +204,7 @@ int main() {
 
         liberarGrafo(grafo);
         return 0;
-    */
+    
 }
 
 
