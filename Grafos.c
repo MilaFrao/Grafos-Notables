@@ -185,25 +185,58 @@ void liberarGrafo(Grafo* grafo) {
     free(grafo);
 }
 
+Grafo* leerArchivo(const char* nombreArchivo){
+    FILE* archivo = fopen(nombreArchivo, "r");
+    if (archivo == NULL)
+    {
+    printf("Error: no se pudo abrir el archivo %s\n", nombreArchivo);
+        return NULL;
+    }
+
+    int n;
+    if (fscanf(archivo, "%d", &n) != 1 || n <= 0) 
+    {
+        printf("Error: número de vértices inválido\n");
+        fclose(archivo);
+        return NULL;
+    }
+
+    Grafo* grafo = crearGrafo(n);
+    int u, v;
+    
+    while (fscanf(archivo, "%d %d", &u, &v) == 2)
+    {
+        if(u >= 0 && u < n && v >= 0 && v < n)
+        {
+            agregarArista(grafo, u, v);
+        }
+        else
+        {
+            printf("Advertencia: arista inválida (%d, %d) ignorada\n", u, v);
+        }
+    }
+    
+    fclose(archivo);
+    return grafo;
+}
 
 
 int main() {
     
+    Grafo* grafo = leerArchivo("data.io");
+    if (grafo == NULL)
+    {
+        return 1;
+    }
     
-    Grafo* grafo = crearGrafo(4);
+    printf("Conexo: %s\n", esConexo(grafo) ? "SI" : "NO");
+    printf("Arbol: %s\n", esArbol(grafo) ? "SI" : "NO");
+    printf("Euleriano: %s\n", esEuleriano(grafo) ? "SI" : "NO");
+    printf("Bipartito: %s\n", esBipartito(grafo) ? "SI" : "NO");
 
-        agregarArista(grafo, 0, 1);
-        agregarArista(grafo, 1, 2);
-        agregarArista(grafo, 2, 3);
-        agregarArista(grafo, 3, 0);
-
-        printf("Conexo: %s\n", esConexo(grafo) ? "SI" : "NO");
-        printf("Arbol: %s\n", esArbol(grafo) ? "SI" : "NO");
-        printf("Euleriano: %s\n", esEuleriano(grafo) ? "SI" : "NO");
-        printf("Bipartito: %s\n", esBipartito(grafo) ? "SI" : "NO");
-
-        liberarGrafo(grafo);
-        return 0;
+    liberarGrafo(grafo);
+    
+    return 0;
     
 }
 
