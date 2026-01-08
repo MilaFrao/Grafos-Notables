@@ -4,10 +4,8 @@ Cedula: ;31.632.023
 Correo: miladelaroca@gmail.com
 Fecha de creación: ;27 de diciembre del 2025
 |#
+
 #lang racket
-
-(require data/queue)
-
 ; --------------------------------- Estructuras de datos ---------------------------------
 (struct nodo (vertice siguiente) #:mutable #:transparent)
 (struct grafo (num-vertices lista-adyacencia) #:transparent)
@@ -32,9 +30,8 @@ Fecha de creación: ;27 de diciembre del 2025
       (let ([u (nodo-vertice temp)])
         (cond
           [(= (vector-ref visitado u) 0)
-           (if (DFS-ciclo grafo u visitado v)
-               #t
-               (iterar (nodo-siguiente temp)))]
+           (when (DFS-ciclo grafo u visitado v)
+             (iterar (nodo-siguiente temp)))]
           [(not (= u padre)) #t]
           [else (iterar (nodo-siguiente temp))]))))
   #f)
@@ -54,10 +51,11 @@ Fecha de creación: ;27 de diciembre del 2025
     [(= (grafo-num-vertices grafo) 0) #f]
     [else
      (let ([visitado (make-vector (grafo-num-vertices grafo) 0)])
-       (if (DFS-ciclo grafo 0 visitado -1)
-           #f
-           (for/and ([i (in-range (grafo-num-vertices grafo))])
-             (not (= (vector-ref visitado i) 0)))))]))
+       (cond
+         [(DFS-ciclo grafo 0 visitado -1) #f]
+         [else
+          (for/and ([i (in-range (grafo-num-vertices grafo))])
+            (not (= (vector-ref visitado i) 0)))]))]))
 
 (define (es-euleriano? grafo)
   (cond
@@ -74,38 +72,34 @@ Fecha de creación: ;27 de diciembre del 2025
   (let ([color (make-vector (grafo-num-vertices grafo) -1)])
     
     (define (verificar-vertice inicio)
-      (let ([cola (list inicio)]
-            [frente 0]
-            [fin 1])
+      (let ([cola (make-queue)])
+        (enqueue! cola inicio)
         (vector-set! color inicio 0)
         
         (let iterar ()
-          (when (< frente fin)
-            (let ([v (list-ref cola frente)])
-              (set! frente (+ frente 1))
-              
+          (when (not (queue-empty? cola))
+            (let ([v (dequeue! cola)])
               (let recorrer-adyacentes ([temp (vector-ref (grafo-lista-adyacencia grafo) v)])
                 (when (not (null? temp))
                   (let ([u (nodo-vertice temp)])
                     (cond
                       [(= (vector-ref color u) -1)
                        (vector-set! color u (- 1 (vector-ref color v)))
-                       (set! cola (append cola (list u)))
-                       (set! fin (+ fin 1))
-                       (recorrer-adyacentes (nodo-siguiente temp))]
+                       (enqueue! cola u)]
                       [(= (vector-ref color u) (vector-ref color v))
                        #f]
                       [else (recorrer-adyacentes (nodo-siguiente temp))]))))
               (iterar)))))
       #t)
     
-    (let ([resultado #t])
-      (for ([inicio (in-range (grafo-num-vertices grafo))])
-        (when (and resultado (= (vector-ref color inicio) -1))
-          (set! resultado (verificar-vertice inicio))))
-      resultado)))
+    (for/and ([inicio (in-range (grafo-num-vertices grafo))])
+      (when (= (vector-ref color inicio) -1)
+        (verificar-vertice inicio)))
+    #t))
 
 ; --------------------------------- Lectura de archivos ---------------------------------
+(require racket/file)
+
 (define (leer-archivo nombre-archivo)
   (let* ([lineas (file->lines nombre-archivo)]
          [n (string->number (first lineas))])
@@ -119,11 +113,9 @@ Fecha de creación: ;27 de diciembre del 2025
                [u (string->number (first valores))]
                [v (string->number (second valores))])
           
-          (cond
-            [(and u v (>= u 0) (< u n) (>= v 0) (< v n))
-             (agregar-arista! grafo u v)]
-            [else
-             (printf "Advertencia: arista inválida (~a, ~a) ignorada\n" u v)])))
+          (when (and u v (>= u 0) (< u n) (>= v 0) (< v n))
+            (agregar-arista! grafo u v)
+            (printf "Advertencia: arista inválida (~a, ~a) ignorada\n" u v))))
       grafo)))
 
 ; --------------------------------- Función principal ---------------------------------
@@ -138,3 +130,4 @@ Fecha de creación: ;27 de diciembre del 2025
 
 ; Ejecutar el programa
 (main)
+
