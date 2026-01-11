@@ -4,7 +4,8 @@
 -- Cedula: 31.632.023
 -- Correo: miladelaroca@gmail.com
 -- Fecha de creación: 27 de diciembre del 2025
--- compilar con: ghc Grafo.hs -o Grafo
+-- Fecha de culminacion: 5 de enero del 2026
+-- compilar con: ghc Grafo.hs -o Grafo O en visual studio code: ctrl+alt+N (Con la extensión Code Runner)
 ------------------------------------------------------------------------------------------------------
 
 module Main where

@@ -1,18 +1,33 @@
 //--------------------------------- Inicio de Grafos completos -----------------------------------------
 /*
+    Grafos.c
 
-Desarrollado por: Samuel Josue Mila de la Roca Guerra
-Cedula: 31.632.023
-Correo: miladelaroca@gmail.com
-Fecha de creación: 27 de diciembre del 2025
+    Desarrollado por: Samuel Josue Mila de la Roca Guerra
+    Cédula: 31.632.023
+    Correo: miladelaroca@gmail.com
+    Fecha de creación: 27 de diciembre del 2025
+    Fecha de culminación: 5 de enero del 2026
 
-Compilar:
-gcc Grafos.c -o Grafos
-O en visual studio code: ctrl+alt+N (Con la extensión Code Runner)
+
+
+    Compilar:
+    gcc Grafos.c -o Grafos
+    (En Visual Studio Code con Code Runner: Ctrl+Alt+N)
+
+    Estructura del archivo:
+    - Definición de tipos `Nodo` y `Grafo`.
+    - Funciones para crear, modificar y liberar el grafo.
+    - Algoritmos DFS y BFS para detectar ciclos, comprobar conexidad,
+        bipartición y propiedad euleriana.
 */
 
 #include <stdio.h>
 #include <stdlib.h>
+
+
+// =========================
+// Tipos de datos
+// =========================
 
 
 typedef struct Nodo {
@@ -37,6 +52,13 @@ Grafo* crearGrafo(int vertices) {
 
     return grafo;
 }
+ 
+/*
+    crearGrafo:
+    Crea e inicializa un grafo con `vertices` vértices. Devuelve un
+    puntero a `Grafo` con todas las listas de adyacencia inicializadas a NULL.
+    El llamador debe liberar la memoria con `liberarGrafo`.
+*/
 
 void agregarArista(Grafo* grafo, int origen, int destino) {
     Nodo* nuevo = (Nodo*)malloc(sizeof(Nodo));
@@ -50,7 +72,11 @@ void agregarArista(Grafo* grafo, int origen, int destino) {
     grafo->listaAdyacencia[destino] = nuevo2;
 }
 
-
+/*
+    agregarArista:
+    Añade una arista no dirigida entre `origen` y `destino` insertando
+    nodos al principio de cada listas de adyacencia.
+*/
 
 int DFS_ciclo(Grafo* grafo, int v, int* visitado, int padre) {
     visitado[v] = 1;
@@ -73,7 +99,16 @@ int DFS_ciclo(Grafo* grafo, int v, int* visitado, int padre) {
     return 0;
 }
 
-
+/*
+    DFS_ciclo:
+    DFS recursivo que marca vértices como visitados y detecta ciclos.
+    Parámetros:
+        - grafo: puntero al grafo
+        - v: vértice actual
+        - visitado: arreglo de tamaño numVertices (0/1)
+        - padre: vértice desde el que se llegó a `v` (evita falso positivo de ciclo)
+    Devuelve 1 si se detecta un ciclo en la componente, 0 en caso contrario.
+*/
 
 int esConexo(Grafo* grafo) {
     if (grafo->numVertices == 0) return 1;
@@ -91,6 +126,12 @@ int esConexo(Grafo* grafo) {
     free(visitado);
     return 1;
 }
+
+/*
+    esConexo:
+    Comprueba si el grafo es conexo: ejecuta un DFS desde el vértice 0 y
+    verifica que todos los vértices hayan sido visitados.
+*/
 
 int esArbol(Grafo* grafo) {
     if (grafo->numVertices == 0) return 0;
@@ -113,6 +154,13 @@ int esArbol(Grafo* grafo) {
     return 1;
 }
 
+/*
+    esArbol:
+    Devuelve 1 si el grafo es un árbol: es conexo y no tiene ciclos.
+    Para ello se utiliza `DFS_ciclo` para detectar ciclos y luego se
+    comprueba que todos los vértices estén visitados.
+*/
+
 int esEuleriano(Grafo* grafo) {
     if (!esConexo(grafo)) return 0;
 
@@ -128,6 +176,20 @@ int esEuleriano(Grafo* grafo) {
 
     return 1;
 }
+
+/*
+    esEuleriano:
+    Un grafo no dirigido es euleriano si es conexo y todos sus vértices
+    tienen grado par. Esta función calcula el grado de cada vértice
+    recorriendo su lista de adyacencia.
+*/
+
+/*
+    esBipartito:
+    Comprueba si el grafo es bipartito mediante BFS por componentes.
+    Se colorea cada componente con dos colores (0/1). Si se encuentra
+    una arista entre dos vértices del mismo color, no es bipartito.
+*/
 
 int esBipartito(Grafo* grafo) {
     int* color = (int*)malloc(grafo->numVertices * sizeof(int));
@@ -171,6 +233,18 @@ int esBipartito(Grafo* grafo) {
     return 1;
 }
 
+/*
+    esBipartito:
+    Comprueba si el grafo es bipartito mediante BFS por componentes.
+    Se colorea cada componente con dos colores (0/1). Si se encuentra
+    una arista entre dos vértices del mismo color, no es bipartito.
+*/
+
+/*
+    liberarGrafo:
+    Libera toda la memoria asociada al grafo: las listas de adyacencia
+    y la estructura `Grafo` en sí.
+*/
 
 void liberarGrafo(Grafo* grafo) {
     for (int i = 0; i < grafo->numVertices; i++) {
@@ -186,6 +260,13 @@ void liberarGrafo(Grafo* grafo) {
 }
 
 Grafo* leerArchivo(const char* nombreArchivo){
+/*
+        leerArchivo:
+        Lee el grafo desde un archivo con formato:
+            n         (número de vértices)
+            u v       (una arista por línea)
+        Valida rangos de vértices y añade las aristas válidas.
+*/
     FILE* archivo = fopen(nombreArchivo, "r");
     if (archivo == NULL)
     {
@@ -222,6 +303,11 @@ Grafo* leerArchivo(const char* nombreArchivo){
 
 
 int main() {
+/*
+    main:
+    Punto de entrada. Lee `data.io`, imprime las propiedades del grafo y
+    libera la memoria. Devuelve 0 en caso de éxito, 1 si falla la lectura.
+*/
     
     Grafo* grafo = leerArchivo("data.io");
     if (grafo == NULL)
